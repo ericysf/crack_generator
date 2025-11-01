@@ -1,0 +1,8 @@
+Images for Generating Damages.zip
+*.zip
+__pycache__/
+*.pyc
+target_overlay/
+target_binary_mask/
+*.pth
+*.ckpt

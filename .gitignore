@@ -6,3 +6,5 @@ target_overlay/
 target_binary_mask/
 *.pth
 *.ckpt
+testing/
+sam2/

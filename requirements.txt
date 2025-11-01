@@ -71,7 +71,6 @@ pyzmq==27.1.0
 regex==2025.9.18
 requests==2.32.5
 safetensors==0.3.1
--e git+https://github.com/facebookresearch/sam2.git@5660069ba6d6e0940a2d0700d1eb90d842792779#egg=SAM_2
 six==1.17.0
 stack-data==0.6.3
 sympy==1.14.0

@@ -12,6 +12,10 @@ parser = argparse.ArgumentParser(description='SAM2 Image Segmentation Tool')
 parser.add_argument('image_path', type=str, help='Path to the input image')
 parser.add_argument('--model', type=str, default='facebook/sam2-hiera-large', 
                     help='SAM2 model to use (default: facebook/sam2-hiera-large)')
+parser.add_argument('--overlay-dir', type=str, default='target_overlay',
+                    help='Directory for overlay output (default: target_overlay)')
+parser.add_argument('--mask-dir', type=str, default='target_binary_mask',
+                    help='Directory for binary mask output (default: target_binary_mask)')
 args = parser.parse_args()
 
 image_path = args.image_path
@@ -27,10 +31,18 @@ image_np = np.array(image)[:, :, ::-1].copy()  # Convert RGB to BGR for OpenCV
 folder = os.path.dirname(image_path)
 basename = os.path.splitext(os.path.basename(image_path))[0]
 
-# Create output directories if they don't exist
-overlay_dir = os.path.join(folder, 'target_overlay')
-binary_mask_dir = os.path.join(folder, 'target_binary_mask')
+# Set output directories - join with image folder if not absolute path
+if os.path.isabs(args.overlay_dir):
+    overlay_dir = args.overlay_dir
+else:
+    overlay_dir = os.path.join(folder, args.overlay_dir)
 
+if os.path.isabs(args.mask_dir):
+    binary_mask_dir = args.mask_dir
+else:
+    binary_mask_dir = os.path.join(folder, args.mask_dir)
+
+# Create output directories if they don't exist
 if not os.path.exists(overlay_dir):
     os.makedirs(overlay_dir)
     print(f"Created directory: {overlay_dir}")

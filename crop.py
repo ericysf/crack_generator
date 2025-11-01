@@ -44,8 +44,8 @@ def random_crop_from_mask(image: Image.Image, mask: Image.Image, crop_size=768):
 
 def main():
     parser = argparse.ArgumentParser(description="Random crop a patch from segmented region.")
-    parser.add_argument("--image", type=str, required=True, help="Path to input image")
-    parser.add_argument("--mask", type=str, required=True, help="Path to binary mask")
+    parser.add_argument("image", type=str, help="Path to input image")
+    parser.add_argument("mask", type=str, help="Path to binary mask")
     parser.add_argument("--out_dir", type=str, default=".", help="Output directory (default: current directory)")
     parser.add_argument("--crop_size", type=int, default=768, help="Size of the crop patch (default: 768)")
     

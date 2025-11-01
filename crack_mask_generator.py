@@ -118,7 +118,7 @@ def generate_crack_mask(segment_mask, num_cracks, min_length, max_length, branch
 
 def main():
     parser = argparse.ArgumentParser(description="Generate cracks on a binary segment mask.")
-    parser.add_argument("--input", type=str, required=True)
+    parser.add_argument("input", type=str)
     parser.add_argument("--num_cracks", type=int, default=3)
     parser.add_argument("--min_length", type=int, default=300)
     parser.add_argument("--max_length", type=int, default=500)

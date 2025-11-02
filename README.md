@@ -1,5 +1,7 @@
 # gen_crack
-![Uploading image.png…]()
+![Pipeline Overview](Pipeline.png)
+
+
 
 Synthetic crack generation system first use SAM2 object segmentation to identify the target region for crack generation.  A 768x768 patch is cropped from the target region to generation binary crack mask. The binary crack mask and the cropped building images will be input to a controlnet guided stable diffusion model to generate syntheic crack on building walls.
 

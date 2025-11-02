@@ -69,9 +69,8 @@ print("✓ Models loaded successfully")
 # =========================
 # Define prompt
 # =========================
-prompt = ("Ultra-realistic high resolution macro photograph of jagged dark deep recessed cracks in a concrete wall, thin hairline fractures blending naturally with the surface, subtle shadow and depth, photorealistic")
+prompt = ("Ultra-realistic high resolution macro photograph of jagged dark deep recessed cracks in a concrete wall, thin hairline fractures blending naturally with the surface, subtle shadow and depth, photorealistic detail")
 
-#prompt = ("Ultra-realistic macro photograph of deep cracks in surface, dark shadows and black fractures, fine dust debris in crack lines, authentic weathered texture, deep shadows within cracks, photorealistic detail")
 
 # =========================
 # Generate image

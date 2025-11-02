@@ -85,5 +85,18 @@ bash code for automatic crack mask generation
 ## 2.6 gen_crack_image.sh
 bash code for automatic crack image generation
 
+## 2.7 replace.py
+replacing the patch from the original image with the generated image
+
+### argv for replace.py
+required:
+  'original': 'Path to the original image'
+  'patch': 'Path to patch image to insert'
+  'coords': 'Path the JSON file with the crop coordinates'
+optional:
+  "--output": "Path to save the modified image (default: same directory as original image with _modified suffix)"
+
+### running the script
+python replace.py 'original' 'patch' 'coords' --'optional argv' value
 
 

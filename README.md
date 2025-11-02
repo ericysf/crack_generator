@@ -1,4 +1,4 @@
-# gen_crack
+# Synthetic Crack Generator With ControlNet Guided Stable Diffusion
 ![Pipeline Overview](Pipeline.png)
 
 

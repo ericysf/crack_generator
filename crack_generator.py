@@ -9,7 +9,7 @@ import argparse
 import sys
 
 # =========================
-# 0️⃣ Parse command line arguments
+# Parse command line arguments
 # =========================
 parser = argparse.ArgumentParser(description="ControlNet inpainting with crack generation")
 parser.add_argument("image_path", help="Path to the original image")
@@ -23,7 +23,7 @@ parser.add_argument("--inference_steps", type=int, default=200, help="Number of 
 args = parser.parse_args()
 
 # =========================
-# 1️⃣ Load images
+# Load images
 # =========================
 try:
     init_image = load_image(args.image_path)
@@ -34,12 +34,9 @@ except FileNotFoundError as e:
     print(f"✗ Error: {e}")
     sys.exit(1)
 
-# Resize both to 512x512
-# init_image = init_image.resize((512, 512))
-# mask_image = mask_image.resize((512, 512))
 
 # =========================
-# 2️⃣ Preprocess mask
+# Preprocess mask
 # =========================
 # Convert mask to grayscale numpy array
 mask_np = np.array(mask_image.convert("L"))
@@ -50,12 +47,12 @@ control_edges = cv2.Canny(mask_np, 100, 200)
 control_image = Image.fromarray(control_edges)
 
 # =========================
-# 3️⃣ Setup generator
+# Setup generator
 # =========================
 generator = torch.Generator(device="cuda").manual_seed(args.seed)
 
 # =========================
-# 4️⃣ Load ControlNet + pipeline
+# Load ControlNet + pipeline
 # =========================
 print("Loading ControlNet model...")
 controlnet = ControlNetModel.from_pretrained(
@@ -70,20 +67,18 @@ pipe.enable_model_cpu_offload()
 print("✓ Models loaded successfully")
 
 # =========================
-# 5️⃣ Define prompt
+# Define prompt
 # =========================
 prompt = ("Ultra-realistic high resolution macro photograph of jagged dark deep recessed cracks in a concrete wall, thin hairline fractures blending naturally with the surface, subtle shadow and depth, photorealistic")
 
 #prompt = ("Ultra-realistic macro photograph of deep cracks in surface, dark shadows and black fractures, fine dust debris in crack lines, authentic weathered texture, deep shadows within cracks, photorealistic detail")
 
-#negative_prompt = ("painted, artistic, abstract, unrealistic, blurry, low quality, CGI, rendered, fake, smooth, polished, shallow cracks, light colored cracks")
 # =========================
-# 6️⃣ Generate image
+# Generate image
 # =========================
 print("Generating image with ControlNet inpainting...")
 image = pipe(
     prompt=prompt,
-    #negative_prompt=negative_prompt,
     num_inference_steps=args.inference_steps,
     generator=generator,
     eta=1,  

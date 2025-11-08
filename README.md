@@ -1,108 +1,227 @@
-# Synthetic Crack Generator With ControlNet Guided Stable Diffusion
+
+
+# Crack Generator
+A synthetic crack generation system for building inspection and damage assessment applications. This tool uses SAM2 object segmentation and ControlNet-guided Stable Diffusion to generate realistic cracks on building walls.  
 ![Pipeline Overview](Pipeline.png)
 
 
+## Overview
 
-Synthetic crack generation system first use SAM2 object segmentation to identify the target region for crack generation.  A 768x768 patch is cropped from the target region to generation binary crack mask. The binary crack mask and the cropped building images will be input to a controlnet guided stable diffusion model to generate syntheic crack on building walls.
+The pipeline consists of several stages:  
 
-# 1. Installation Guide
-## install the required library, run  
-"pip install -r requirements.txt"  
+1. **Target Region Identification**: SAM2 segments the region where cracks should appear  
+2. **Patch Extraction**: Crops a 768×768 patch from the target region  
+3. **Crack Mask Generation**: Creates realistic binary crack patterns  
+4. **Synthetic Crack Generation**: Uses ControlNet to guide Stable Diffusion for photorealistic crack synthesis  
+5. **Full-Size Reconstruction**: Recreates full-resolution images with generated cracks  
 
-## install SAM2, run
-"git clone https://github.com/facebookresearch/sam2.git && cd sam2"  
-"pip install -e ."  
+## Installation
 
-## Download the SAM2 Models, run  
-"cd checkpoints && \  
-./download_ckpts.sh && \  
-cd .."  
+### Clone the Repository
 
-## Copy sam2_segmentation.py into the folder "sam2", run  
-"cp sam2_segmentation.py  sam2/sam2_segmentation.py"  
+```bash  
+git clone https://github.com/ericysf/crack_generator.git  
+cd crack_generator  
+```  
 
-# 2. Script Description
-## 2.1 sam2_segmentation.py
-sam2_segmentation.py needs to be placed in the 'sam2' folder. It is used to identify the target region for crack generation. It takes the original image as input and ask user to click on the interest region with mouse and output the overlay and binary mask of the target region.   
+### Prerequisites  
 
-### Argv for sam2_segmentation.py  
-- required:  
-  'image_path" : path to the image to be segmented   
-- optional:  
-  '--model': 'SAM2 model to use (default: facebook/sam2-hiera-large)'   
-  '--overlay-dir': 'Directory for overlay output (default: target_overlay)'  
-  '--mask-dir': 'Directory for binary mask output (default: target_binary_mask)'  
+```bash  
+pip install -r requirements.txt  
+```  
 
-### running the script  
-python sam2_segmentation.py 'image_path' --'optional argv' value  
+### SAM2 Setup
 
-## 2.2 crop.py  
-cropping a smaller patch from the segmented area of the binary mask and original image.   
- 
-### Argv for crop.py    
-- required:  
-  'image': 'Path to input image'  
-  "mask": 'Path to binary mask'  
-- optional:  
-  "--out_dir": 'Output directory (default: current directory)'  
-  "--crop_size": 'Size of the squared crop patch (default: 768)'  
+```bash  
+# Clone SAM2 repository  
+git clone https://github.com/facebookresearch/sam2.git  
+cd sam2  
+  
+# Install SAM2  
+pip install -e .  
+  
+# Download checkpoints  
+cd checkpoints  
+./download_ckpts.sh  
+cd ../..  
+  
+# Copy segmentation script to SAM2 folder  
+cp sam2_segmentation.py sam2/sam2_segmentation.py  
+```   
+  
+## Usage
+  
+### 1. Target Region Segmentation  
+  
+Identify the target region for crack generation using interactive segmentation.  
+  
+**Required Arguments:**  
+- `image_path`: Path to the image to be segmented  
+  
+**Optional Arguments:**  
+- `--model`: SAM2 model to use (default: `facebook/sam2-hiera-large`)  
+- `--overlay-dir`: Directory for overlay output (default: `target_overlay`)  
+- `--mask-dir`: Directory for binary mask output (default: `target_binary_mask`)  
+  
+```bash  
+python sam2_segmentation.py <image_path> [--model MODEL] [--overlay-dir DIR] [--mask-dir DIR]  
+```  
 
-### running the script  
-python crop.py 'image' 'mask' --'optional argv' value  
+**Example:**  
+```bash  
+python sam2_segmentation.py images/building.jpg --overlay-dir output/overlays  
+```  
+  
+### 2. Patch Cropping  
+  
+Crop a smaller patch from the segmented area for processing.  
+  
+**Required Arguments:**  
+- `image`: Path to input image  
+- `mask`: Path to binary mask  
+  
+**Optional Arguments:**  
+- `--out_dir`: Output directory (default: current directory)    
+- `--crop_size`: Size of the square crop patch (default: `768`)  
+  
+```bash  
+python crop.py <image> <mask> [--out_dir DIR] [--crop_size SIZE]  
+```  
+  
+**Example:**  
+```bash  
+python crop.py images/building.jpg target_binary_mask/building_mask.png --crop_size 768  
+```  
+  
+### 3. Crack Mask Generation  
+  
+Generate random binary crack patterns based on the cropped target region.  
+  
+**Required Arguments:**  
+- `input`: Path to input cropped target region binary mask  
+  
+**Optional Arguments:**  
+- `--num_cracks`: Number of crack seeds (default: `3`)  
+- `--min_length`: Minimum crack length in pixels (default: `300`)  
+- `--max_length`: Maximum crack length in pixels (default: `500`)  
+- `--branch_prob`: Branching probability (default: `0.3`)  
+- `--thickness_scale`: Thickness scale (default: `1.0`)  
+  
+```bash  
+python crack_mask_generator.py <input> [OPTIONS]  
+```  
+  
+**Example:**  
+```bash  
+python crack_mask_generator.py cropped_mask.png --num_cracks 5 --max_length 600 --branch_prob 0.4  
+```  
+  
+### 4. Crack Image Generation  
+  
+Use ControlNet-guided Stable Diffusion to generate photorealistic cracks.  
+  
+**Required Arguments:**  
+- `image_path`: Path to the cropped original image  
+- `mask_path`: Path to the crack mask image  
+  
+**Optional Arguments:**  
+- `--output_path`: Path to save output (default: `original_image_with_cracks.png`)  
+- `--seed`: Random seed for reproducibility (default: `1`)  
+- `--guidance_scale`: Guidance scale for prompt adherence (default: `70`)  
+- `--controlnet_scale`: ControlNet conditioning scale (default: `2.5`)  
+- `--inference_steps`: Number of inference steps (default: `200`)  
+   
+```bash  
+python crack_generator.py <image_path> <mask_path> [OPTIONS]  
+```  
+  
+**Example:**  
+```bash  
+python crack_generator.py cropped_image.png crack_mask.png --guidance_scale 80 --inference_steps 250  
+```  
+  
+### 5. Full-Size Image Reconstruction  
+  
+Recreate full-size crack images by inserting the generated patch back into the original image.  
+   
+**Required Arguments:**  
+- `original`: Path to the original full-size image  
+- `patch`: Path to the generated crack patch  
+- `patch_mask`: Path to the patch crack mask  
+- `coords`: Path to JSON file with crop coordinates  
+  
+**Optional Arguments:**  
+- `--output`: Path to save modified image (default: original filename with `_modified` suffix)  
+- `--output_mask`: Path to save full-size crack mask (default: original filename with `_crack_mask` suffix)  
+  
+```bash  
+python recreate.py <original> <patch> <patch_mask> <coords> [OPTIONS]  
+```  
+  
+**Example:**  
+```bash  
+python recreate.py images/building.jpg output/crack_patch.png output/crack_mask.png coords.json  
+```  
+  
+## Automation Scripts  
+  
+For batch processing, use the provided bash scripts:  
+  
+### Automatic Crack Mask Generation  
+```bash  
+bash auto_crack_mask_generation.sh  
+```  
+  
+### Automatic Crack Image Generation  
+```bash  
+bash auto_crack_image_generation.sh  
+```  
+  
+## Pipeline Workflow  
+  
+```  
+Original Image
+    ↓
+[SAM2 Segmentation] → Target region mask + overlay
+    ↓
+[Crop] → 768×768 patches (image + mask)
+    ↓
+[Crack Mask Generator] → Synthetic crack mask
+    ↓
+[ControlNet + Stable Diffusion] → Patch with realistic cracks
+    ↓
+[Recreate] → Full-size image with cracks + full-size crack mask
+```
 
-## 2.3 crack_mask_generator.py  
-generating random binary crack mask based on the input cropped target region mask  
+## Output Structure  
 
-### Argv for crack_mask_generator.py  
-- required:  
-  'input': 'Path to input cropped target region binary mask'  
-- optional:  
-  "--num_cracks": 'number of crack seeds (default: 3)'  
-  "--min_length": 'minimum length of the crack (default: 300)'  
-  "--max_length": 'maximum length of the crack (default: 500)'  
-  "--branch_prob": 'branching probability of the crack (default: 0.3)'  
-  "--thickness_scale": 'thickness scale of the crack (default: 1.0)'  
+```
+project/
+├── target_overlay/          # SAM2 segmentation overlays
+├── target_binary_mask/      # SAM2 binary masks
+├── cropped_images/          # Cropped patches
+├── crack_masks/             # Generated crack masks
+├── generated_cracks/        # Crack images (patches)
+└── final_outputs/           # Full-size reconstructed images
+```
 
-### running the script  
-python crack_mask_generator.py 'input' --'optional argv' value  
+## Requirements  
 
-## 2.4 crack_generator.py  
-use controlnet to guide the stable diffusion to generate crack following the binary crack mask on the input image  
+See `requirements.txt` for the complete list of dependencies. Key requirements include:  
+- PyTorch  
+- Transformers (Hugging Face)  
+- Diffusers  
+- SAM2  
+- OpenCV  
+- NumPy  
+- PIL  
 
-### Argv for crack_generator.py  
-- required:  
-  'image_path': 'Path to the original image'  
-  'mask_path': 'Path to the mask image'  
-- optional:  
-  "--output_path": "Path to save output (default: original_image_with_cracks.png)"  
-  "--seed": "Random seed for reproducibility (default: 1)"  
-  "--guidance_scale": "Guidance scale for prompt adherence (default: 70)"  
-  "--controlnet_scale": "ControlNet conditioning scale (default: 2.5)"   
-  "--inference_steps": "Number of inference steps (default: 200)"  
+## Notes  
 
-### running the script  
-python crack_generator.py 'image_path' 'mask_path' --'optional argv' value  
+- The system works best with 768×768 patches due to the model's training resolution  
+- Higher `guidance_scale` values produce cracks that adhere more closely to the mask  
+- Adjust `controlnet_scale` to control the strength of ControlNet conditioning  
+- Use consistent seeds for reproducible results  
 
-## 2.5 gen_crack_mask.sh  
-bash code for automatic crack mask generation  
-
-## 2.6 gen_crack_image.sh  
-bash code for automatic crack image generation  
-
-## 2.7 recreate.py  
-recreate full size crack images by replacing the generated patch and recreate a crack mask for the full-sized crack images.
-
-### Argv for recreate.py  
-- required:  
-  'original': 'Path to the original image'  
-  'patch': 'Path to patch crack image to insert'
-  'patch_mask': 
-  'coords': 'Path the JSON file with the crop coordinates'  
-- optional:  'Path to patch crack mask'
-  "--output": "Path to save the modified image (default: same directory as original image with _modified suffix)"
-  "--output_mask": "Path to save the full-size crack mask (default: same directory as original image with _crack_mask suffix)"
-
-### running the script  
-python recreate.py 'original' 'patch' 'patch_mask' 'coords' --'optional argv' value  
 
 
